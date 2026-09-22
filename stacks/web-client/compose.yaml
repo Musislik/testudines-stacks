@@ -1,0 +1,14 @@
+services:
+  firefox:
+    image: lscr.io/linuxserver/firefox:latest
+    container_name: firefox
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Prague
+    ports:
+      - "127.0.0.1:3000:3000"
+      - "${TAILSCALE_IP}:3000:3000"
+    volumes:
+      - ${WEBCLIENT_CONFIG_DIR:-/mnt/data-sync/web-client}:/config:rw
+    restart: unless-stopped

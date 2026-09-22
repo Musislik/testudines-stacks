@@ -1,0 +1,62 @@
+services:
+  db:
+    image: mariadb:lts
+    container_name: db
+    command: --transaction-isolation=READ-COMMITTED
+    restart: always
+    volumes:
+      - ${NEXTCLOUD_DB_DIR:-/mnt/data-sync/nextcloud-db}:/var/lib/mysql:Z
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MARIADB_AUTO_UPGRADE=1
+      - MARIADB_DISABLE_UPGRADE_BACKUP=1
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+
+  app:
+    image: nextcloud:apache
+    container_name: nextcloud
+    restart: always
+    ports:
+      - "127.0.0.1:80:80"
+    volumes:
+      - ${NEXTCLOUD_DATA_DIR:-/mnt/data-sync/nextcloud}:/var/www/html:z
+      - ${NEXTCLOUD_AVDB_DIR:-/mnt/data-nosync/avdb}:/avdb:rw
+    environment:
+      - MYSQL_HOST=db
+      - REDIS_HOST=redis
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS:-localhost}
+      - OVERWRITEPROTOCOL=https
+      - OVERWRITECLIURL=${NEXTCLOUD_OVERWRITE_CLI_URL:-}
+      - TRUSTED_PROXIES=127.0.0.1
+    depends_on:
+      - db
+      - redis
+    networks:
+      - proxy-tier
+      - default
+
+  cron:
+    image: nextcloud:apache
+    container_name: cron
+    restart: always
+    volumes:
+      - ${NEXTCLOUD_DATA_DIR:-/mnt/data-sync/nextcloud}:/var/www/html:z
+      - ${NEXTCLOUD_AVDB_DIR:-/mnt/data-nosync/avdb}:/avdb:rw
+    entrypoint: /cron.sh
+    depends_on:
+      - db
+      - redis
+
+networks:
+  proxy-tier:
+    external: true

@@ -1,0 +1,24 @@
+# Environment local overrides & secrets
+.env
+.env.local
+.env.*.local
+
+# Runtime state and application data
+stacks/openttd-server/save/
+stacks/openttd-server/scenario/
+*/data/
+*/db/
+*/config/
+*.log
+*.state
+*.pid
+
+# Temporary & backup files
+*.bak
+*.tmp
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

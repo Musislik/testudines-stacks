@@ -1,0 +1,11 @@
+services:
+  openttd:
+    image: bateau/openttd:14.1
+    restart: unless-stopped
+    ports:
+      - "3979:3979/tcp"
+      - "3979:3979/udp"
+    volumes:
+      - ${OPENTTD_DATA_DIR:-/mnt/data-sync/openttd-server}:/home/openttd/.local/share/openttd
+    environment:
+      - loadgame=last-autosave

@@ -1,0 +1,24 @@
+services:
+  jdownloader:
+    image: jlesage/jdownloader-2
+    container_name: jdownloader
+    restart: always
+    ports:
+      - "127.0.0.1:5800:5800"
+      - "${TAILSCALE_IP}:5800:5800"
+    environment:
+      - TZ=Europe/Prague
+      - UMASK=000
+      - WEB_AUTHENTICATION=1
+      - WEB_AUTHENTICATION_USERNAME=${WEB_AUTHENTICATION_USERNAME}
+      - WEB_AUTHENTICATION_PASSWORD=${WEB_AUTHENTICATION_PASSWORD}
+      - SECURE_CONNECTION=1
+    volumes:
+      - ${JDOWNLOADER_CONFIG_DIR:-/mnt/data-sync/jdownloader-config}:/config:rw
+      - ${JDOWNLOADER_OUTPUT_DIR:-/mnt/data-nosync/avdb}:/output:rw
+    networks:
+      - proxy-tier
+
+networks:
+  proxy-tier:
+    external: true
