@@ -1,4 +1,4 @@
-# Future Features & Plánovaná vylepšení (testudines-apps)
+# Future Features & Plánovaná vylepšení (testudines-stacks)
 
 Tento dokument slouží k evidenci plánovaných rozšíření a vylepšení správy aplikačních stacků.
 
@@ -7,7 +7,7 @@ Tento dokument slouží k evidenci plánovaných rozšíření a vylepšení spr
 ## 1. Automatická synchronizace Git repozitáře (Auto-Sync)
 
 ### Současný stav:
-Synchronizace stacků z repozitáře `testudines-apps` do produkčního adresáře `/opt/stacks/` probíhá pouze na vyžádání při ručním spuštění Ansible playbooku (`site.yml` / `bootstrap.sh`), případně přímou editací v rozhraní Dockge.
+Synchronizace stacků z repozitáře `testudines-stacks` do produkčního adresáře `/opt/stacks/` probíhá pouze na vyžádání při ručním spuštění Ansible playbooku (`site.yml` / `bootstrap.sh`), případně přímou editací v rozhraní Dockge.
 
 ### Návrh řešení:
 Implementovat automatické stahování a aplikování změn bez nutnosti ručního spouštění Ansible:
@@ -15,8 +15,8 @@ Implementovat automatické stahování a aplikování změn bez nutnosti ruční
 1. **Varianta A: Periodická kontrola (Cron / Systemd Timer)**
    - Vytvořit lehký skript nebo systemd timer uvnitř virtuálního stroje, který např. každou hodinu (nebo každých 15 minut) provede:
      ```bash
-     cd /tmp/apps-repo && git pull
-     rsync -av --delete /tmp/apps-repo/stacks/ /opt/stacks/
+     cd /tmp/stacks-repo && git pull
+     rsync -av --delete /tmp/stacks-repo/stacks/ /opt/stacks/
      # Volitelně detekovat změny v compose.yaml a provést docker compose up -d
      ```
 2. **Varianta B: Webhook (Okamžitá reakce na Git Push)**

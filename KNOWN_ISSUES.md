@@ -1,4 +1,4 @@
-# Known Issues (testudines-apps)
+# Known Issues (testudines-stacks)
 
 Tento dokument eviduje známé limity, chování a specifika jednotlivých aplikačních stacků.
 
