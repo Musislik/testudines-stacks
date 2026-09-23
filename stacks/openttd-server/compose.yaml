@@ -8,4 +8,4 @@ services:
     volumes:
       - ${OPENTTD_DATA_DIR:-/mnt/data-sync/openttd-server}:/home/openttd/.local/share/openttd
     environment:
-      - loadgame=last-autosave
+      - loadgame=false
