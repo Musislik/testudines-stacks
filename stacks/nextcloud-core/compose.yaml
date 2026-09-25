@@ -42,6 +42,8 @@ services:
       - OVERWRITEPROTOCOL=https
       - OVERWRITECLIURL=${NEXTCLOUD_OVERWRITE_CLI_URL:-}
       - TRUSTED_PROXIES=127.0.0.1
+      - PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT:-1024M}
+      - PHP_UPLOAD_LIMIT=${PHP_UPLOAD_LIMIT:-10G}
     depends_on:
       - db
       - redis
@@ -56,6 +58,8 @@ services:
     volumes:
       - ${NEXTCLOUD_DATA_DIR:-/mnt/data-sync/nextcloud}:/var/www/html:z
       - ${NEXTCLOUD_AVDB_DIR:-/mnt/data-nosync/avdb}:/avdb:rw
+    environment:
+      - PHP_MEMORY_LIMIT=${PHP_MEMORY_LIMIT:-1024M}
     entrypoint: /cron.sh
     depends_on:
       - db
