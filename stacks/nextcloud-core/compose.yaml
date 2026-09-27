@@ -1,6 +1,6 @@
 services:
   db:
-    image: mariadb:lts
+    image: mariadb:11.8
     container_name: db
     command:
       - --transaction-isolation=READ-COMMITTED
@@ -24,7 +24,7 @@ services:
     restart: always
 
   app:
-    image: nextcloud:apache
+    image: nextcloud:32-apache
     container_name: nextcloud
     restart: always
     ports:
@@ -52,7 +52,7 @@ services:
       - default
 
   cron:
-    image: nextcloud:apache
+    image: nextcloud:32-apache
     container_name: cron
     restart: always
     volumes:

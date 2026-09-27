@@ -80,3 +80,26 @@ environment:
 ```
 Tím JDownloader vytváří veškeré nově stažené soubory a složky s plnými právy pro čtení i zápis pro všechny uživatele (soubory `0666`, složky `0777`), což umožňuje Nextcloudu bezproblémovou plnou manipulaci se soubory.
 
+---
+
+## 4. Nextcloud Core – Správa verzí MariaDB a Nextcloud Core (`stacks/nextcloud-core`)
+
+### A) MariaDB: Vazba na větev 11.8 a přechod na budoucí LTS
+- **Popis problému:** Stávající obnovená databáze byla vytvořena na verzi **MariaDB 11.8.2** (rolling / short-term větev). Tag `mariadb:lts` odkazuje na verzi **11.4 LTS**. V MariaDB nelze provést in-place downgrade na raw souborech databáze. Pokus o spuštění starší MariaDB 11.4 nad daty z 11.8 selže s chybou `[ERROR] Bad magic header in tc log` a databáze nenastartuje.
+- **Aktuální stav:** Obraz databáze je zafixován na `image: mariadb:11.8`.
+- **Kdy vyjde další LTS:** MariaDB vydává novou LTS verzi přibližně každé 2 roky (poslední LTS 11.4 vyšla v květnu 2024, předchozí 10.11 v únoru 2023). Další plnohodnotná LTS verze (např. větev 12.x LTS) se očekává na **přelomu let 2026/2027**.
+- **Doporučený plán přechodu na LTS:**
+  - Ponechat databázi běžet na `mariadb:11.8`.
+  - Jakmile vyjde nová LTS verze (bude mít vyšší verzi než 11.8), provést přímý in-place upgrade pouhou změnou obrazu na tuto novou LTS verzi bez nutnosti mezikroků a ručních exportů/importů.
+  - *Poznámka:* Pokud by došlo k chybě `Bad magic header in tc log`, odstraní se dočasný soubor: `sudo rm -f /mnt/data-sync/nextcloud-db/tc.log`.
+
+### B) Nextcloud: Zákaz přeskakování hlavních verzí (Major Version Upgrade)
+- **Popis problému:** Nextcloud oficiálně nepodporuje přímý upgrade přes více hlavních verzí najednou (např. z verze 32 přímo na 34/35). Pokus o start s generickým tagem `nextcloud:apache` (který stahuje nejnovější verzi) skončí chybou:
+  `It is only possible to upgrade one major version at a time.`
+- **Aktuální stav:** Obnovená záloha běží na **Nextcloud 32.0.3**, proto jsou kontejnery `app` a `cron` zafixovány na obraz `nextcloud:32-apache`.
+- **Postup budoucího upgradu:** Upgrady je nutné provádět postupně o jednu hlavní verzi (32 ➔ 33 ➔ 34 ➔ ...):
+  1. V `compose.yaml` změnit tag na `nextcloud:33-apache` a spustit `docker compose up -d`.
+  2. Spustit migraci: `docker exec -u 33 nextcloud php occ upgrade`.
+  3. Až po úspěšném dokončení zopakovat proces pro verzi 34 atd.
+
+
