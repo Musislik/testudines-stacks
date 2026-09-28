@@ -1,0 +1,29 @@
+services:
+  backrest:
+    image: ghcr.io/garethgeorge/backrest:latest
+    container_name: backrest
+    hostname: backrest
+    restart: unless-stopped
+    ports:
+      # Navázáno striktně na localhost a Tailscale IP (bezpečný přístup mimo LAN)
+      - "127.0.0.1:9898:9898"
+      - "${TAILSCALE_IP}:9898:9898"
+    environment:
+      - BACKREST_DATA=/data
+      - BACKREST_CONFIG=/config/config.json
+      - XDG_CACHE_HOME=/cache
+      - TMPDIR=/tmp
+      - TZ=Europe/Prague
+      # Rclone Google Drive integrace předaná přes proměnné prostředí (lze editovat v Dockge .env)
+      - RCLONE_CONFIG_GDRIVE_TYPE=drive
+      - RCLONE_CONFIG_GDRIVE_SCOPE=drive
+      - RCLONE_CONFIG_GDRIVE_TOKEN=${RCLONE_GDRIVE_TOKEN:-}
+    volumes:
+      # Nastavení a databáze samotného Backrestu
+      - ${BACKREST_CONFIG_DIR:-/mnt/data-sync/backrest-config}:/config:rw
+      - ${BACKREST_DATA_DIR:-/mnt/data-sync/backrest-data}:/data:rw
+      - /tmp/backrest:/tmp:rw
+      # Restic cache na rychlém systémovém SSD disku (mimo data-sync)
+      - /var/cache/backrest:/cache:rw
+      # Zdroj pro zálohování - striktně v režimu POUZE PRO ČTENÍ
+      - /mnt/data-sync:/userdata/data-sync:ro
