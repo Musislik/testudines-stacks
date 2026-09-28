@@ -72,8 +72,8 @@ services:
     command: ["dump"]
     environment:
       - DB_SERVER=db
-      - DB_USER=root
-      - DB_PASS=${MYSQL_ROOT_PASSWORD}
+      - DB_USER=${MYSQL_USER}
+      - DB_PASS=${MYSQL_PASSWORD}
       - DB_DUMP_INCLUDE=${MYSQL_DATABASE:-nextcloud}
       - DB_DUMP_CRON=45 2 * * *
       - DB_DUMP_TARGET=/backup
