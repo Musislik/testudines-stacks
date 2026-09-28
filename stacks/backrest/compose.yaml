@@ -6,8 +6,8 @@ services:
     restart: unless-stopped
     ports:
       # Navázáno striktně na localhost a Tailscale IP (bezpečný přístup mimo LAN)
-      - "127.0.0.1:9898:9898"
-      - "${TAILSCALE_IP}:9898:9898"
+      - 127.0.0.1:9898:9898
+      - ${TAILSCALE_IP}:9898:9898
     environment:
       - BACKREST_DATA=/data
       - BACKREST_CONFIG=/config/config.json

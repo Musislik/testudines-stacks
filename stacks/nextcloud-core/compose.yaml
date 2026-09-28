@@ -28,7 +28,7 @@ services:
     container_name: nextcloud
     restart: always
     ports:
-      - "127.0.0.1:80:80"
+      - 127.0.0.1:80:80
     volumes:
       - ${NEXTCLOUD_DATA_DIR:-/mnt/data-sync/nextcloud}:/var/www/html:z
       - ${NEXTCLOUD_AVDB_DIR:-/mnt/data-nosync/avdb}:/avdb:rw
