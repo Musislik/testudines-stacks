@@ -65,6 +65,24 @@ services:
       - db
       - redis
 
+  db-backup:
+    image: databack/mysql-backup:latest
+    container_name: nextcloud-db-backup
+    restart: always
+    environment:
+      - DB_SERVER=db
+      - DB_USER=root
+      - DB_PASS=${MYSQL_ROOT_PASSWORD}
+      - DB_DUMP_INCLUDE=${MYSQL_DATABASE:-nextcloud}
+      - DB_DUMP_CRON=45 2 * * *
+      - DB_DUMP_TARGET=/backup
+      - DB_DUMP_KEEP=7
+      - SINGLE_TRANSACTION=true
+    volumes:
+      - ${NEXTCLOUD_DB_BACKUP_DIR:-/mnt/data-sync/nextcloud-db-backup}:/backup
+    depends_on:
+      - db
+
 networks:
   proxy-tier:
     external: true
