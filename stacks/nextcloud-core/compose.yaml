@@ -69,6 +69,7 @@ services:
     image: databack/mysql-backup:latest
     container_name: nextcloud-db-backup
     restart: always
+    command: ["dump"]
     environment:
       - DB_SERVER=db
       - DB_USER=root
