@@ -7,7 +7,7 @@ Tento dokument slouží k evidenci plánovaných rozšíření a vylepšení spr
 ## 1. Automatická synchronizace Git repozitáře (Auto-Sync)
 
 ### Současný stav:
-Synchronizace stacků z repozitáře `testudines-stacks` do produkčního adresáře `/opt/stacks/` probíhá pouze na vyžádání při ručním spuštění Ansible playbooku (`site.yml` / `bootstrap.sh`), případně přímou editací v rozhraní Dockge.
+Repozitář stacků je perzistentně naklonován v `/opt/testudines-stacks` (se symlinkem `/opt/stacks -> /opt/testudines-stacks/stacks`). Synchronizace probíhá ručně (`git pull` nebo `git push`), případně při běhu Ansible playbooku (`site.yml`), pokud je pracovní strom čistý.
 
 ### Návrh řešení:
 Implementovat automatické stahování a aplikování změn bez nutnosti ručního spouštění Ansible:
@@ -15,11 +15,12 @@ Implementovat automatické stahování a aplikování změn bez nutnosti ruční
 1. **Varianta A: Periodická kontrola (Cron / Systemd Timer)**
    - Vytvořit lehký skript nebo systemd timer uvnitř virtuálního stroje, který např. každou hodinu (nebo každých 15 minut) provede:
      ```bash
-     cd /tmp/stacks-repo && git pull
-     rsync -av --delete /tmp/stacks-repo/stacks/ /opt/stacks/
+     cd /opt/testudines-stacks
+     # Pokud je pracovní strom čistý, stáhnout změny
+     [ -z "$(git status --porcelain)" ] && git pull origin master
      # Volitelně detekovat změny v compose.yaml a provést docker compose up -d
      ```
 2. **Varianta B: Webhook (Okamžitá reakce na Git Push)**
-   - Nasadit lehký webhook listener (např. `adnanh/webhook` v Dockeru nebo na hostiteli), který přijme GitHub/Gitea webhook po provedení `git push` do větve `main`.
+   - Nasadit lehký webhook listener (např. `adnanh/webhook` v Dockeru nebo na hostiteli), který přijme GitHub webhook po provedení `git push` do větve `master`.
    - Zabezpečit webhook sdíleným tajným tokenem (secret).
-   - Při příchozím webhooku automaticky provést `git pull` a zaktualizovat dotčený stack v `/opt/stacks/`.
+   - Při příchozím webhooku provést `cd /opt/testudines-stacks && git pull` a zaktualizovat dotčený stack v `/opt/stacks/`.
